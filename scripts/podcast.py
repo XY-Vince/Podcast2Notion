@@ -30,11 +30,22 @@ headers = {
 
 @retry(stop_max_attempt_number=3, wait_fixed=5000)
 def refresh_token():
+    refresh_tok = os.getenv("REFRESH_TOKEN")
+    if not refresh_tok:
+        raise ValueError("REFRESH_TOKEN environment variable is not set. Please configure it in GitHub Secrets or .env.")
     url = "https://api.xiaoyuzhoufm.com/app_auth_tokens.refresh"
     resp = requests.post(url, headers=headers)
     if resp.ok:
         token = resp.json().get("x-jike-access-token")
-        headers["x-jike-access-token"] = token
+        if token:
+            headers["x-jike-access-token"] = token
+            return token
+        raise Exception(f"Failed to obtain x-jike-access-token from refresh response: {resp.text}")
+    else:
+        raise Exception(
+            f"Failed to refresh Xiaoyuzhou token (HTTP {resp.status_code}): {resp.text}. "
+            "Please check if your REFRESH_TOKEN secret is still valid."
+        )
 
 
 @retry(stop_max_attempt_number=3, wait_fixed=5000)
@@ -269,7 +280,7 @@ def insert_episode(episodes, d):
         episode["时长"] = result.get("duration")
         episode["喜欢"] = result.get("isPicked")
         episode["Podcast"] = [d.get(pid)[0]]
-        episode["链接"] = f"hhttps://www.xiaoyuzhoufm.com/episode/{result.get('eid')}"
+        episode["链接"] = f"https://www.xiaoyuzhoufm.com/episode/{result.get('eid')}"
         status = "未听"
         if result.get("isFinished"):
             status = "听过"
