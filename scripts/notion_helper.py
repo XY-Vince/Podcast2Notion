@@ -35,7 +35,10 @@ class NotionHelper:
     database_id_dict = {}
     image_dict = {}
     def __init__(self):
-        self.client = Client(auth=os.getenv("NOTION_TOKEN"), log_level=logging.ERROR)
+        token = os.getenv("NOTION_TOKEN")
+        if not token:
+            raise ValueError("NOTION_TOKEN 未设置，请在环境变量或 GitHub Secrets 中配置 Notion Token")
+        self.client = Client(auth=token, log_level=logging.ERROR)
         self.__cache = {}
         self.page_id = self.extract_page_id(os.getenv("NOTION_PAGE"))
         self.search_database(self.page_id)
@@ -56,6 +59,8 @@ class NotionHelper:
         )
 
     def extract_page_id(self, notion_url):
+        if not notion_url:
+            raise ValueError("获取NotionID失败：NOTION_PAGE 未设置，请在环境变量或 GitHub Secrets 中配置 Notion 页面地址")
         # 正则表达式匹配 32 个字符的 Notion page_id
         match = re.search(
             r"([a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})",
@@ -64,7 +69,7 @@ class NotionHelper:
         if match:
             return match.group(0)
         else:
-            raise Exception(f"获取NotionID失败，请检查输入的Url是否正确")
+            raise Exception(f"获取NotionID失败，请检查输入的Url是否正确: {notion_url}")
 
 
     def search_database(self, block_id):

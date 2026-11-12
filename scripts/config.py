@@ -76,6 +76,6 @@ movie_properties_type_dict = {
     },
     "时长": {"number": 5169},
     "Podcast": {"relation": [{"id": "87723a05-dd9a-494d-a934-9ff4140fcb21"}]},
-    "链接": {"url": "hhttps://www.xiaoyuzhoufm.com/episode/660b3dad1c3c7de44a82f773"},
+    "链接": {"url": "https://www.xiaoyuzhoufm.com/episode/660b3dad1c3c7de44a82f773"},
     "状态": {"status": {"name": "在听"}},
 }
